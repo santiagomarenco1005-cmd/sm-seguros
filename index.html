@@ -278,7 +278,6 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN DEL CEREBRO ---
         const DOM = {
             island: document.getElementById('island'),
             islandText: document.getElementById('island-text').querySelector('span'),
@@ -292,32 +291,40 @@
 
         let state = {
             step: -2,
-            data: { ramo: "", plan: "", nombre: "", cedula: "", extra: "", modelo: "", horario: "", score: { salud: 0, autos: 0, hogar: 0, vida: 0 } },
+            data: { ramo: "", plan: "", nombre: "", cedula: "", extra: "", modelo: "", nacimiento: "", horario: "", score: { salud: 0, autos: 0, hogar: 0, vida: 0 } },
             panicMode: false
         };
 
-        // --- 2. NLP AVANZADO (RegEx + Plurales) ---
+        // --- CEREBRO CONVERSACIONAL (KB) ---
+        const KB = {
+            answers: [
+                { pattern: /(precio|costo|vale|cotizacion)/i, reply: "El precio exacto depende de tu perfil, pero como asesor Élite busco la mejor tarifa del mercado para ti." },
+                { pattern: /(cobertura|cubre)/i, reply: "Nuestras pólizas SURA son integrales. Cubrimos desde daños a terceros hasta asistencia legal y médica dependiendo del ramo." },
+                { pattern: /(deducible)/i, reply: "Manejamos opciones con y sin deducible para ajustarnos a tu presupuesto." },
+                { pattern: /(telefono|contacto|llamar)/i, reply: "Puedes llamarme directamente al +57 301 463 3995 o usar el botón del menú lateral." }
+            ],
+            check: function(text) {
+                for (let item of this.answers) {
+                    if (item.pattern.test(text)) return item.reply;
+                }
+                return null;
+            }
+        };
+
         const NLP = {
             patterns: {
                 afirmacion: /^(si|sí|claro|obvio|por supuesto|dale|de una|acepto|yes|ok|vale|listo|bueno|confirmo|correcto|exacto|afirmativo|efectivamente|así es|total|hágale|seguro que si|me interesa|vamos)$/i,
                 negacion: /^(no|nel|jamas|nunca|para nada|no acepto|negativo|cancelar|paso|no gracias|nop|nanay|desisto|rechazo|no me interesa|ninguno)$/i,
-                
-                // Intenciones de Ramo (Expandidas y Plurales)
                 autos: /\b(auto|autos|carro|carros|coche|coches|vehiculo|vehiculos|automovil|camioneta|suv|mazda|chevrolet|toyota|kia|renault|nissan|ford|bmw|mercedes|audi|volvo|volkswagen|moto|motos|motor|ruedas|transporte|conducir|manejar|placa|4x4|pickup|twingo|spark|logan|sandero|duster|fierro|nave|cuatro ruedas|vial|soat|poliza de carro)\b/i,
                 salud: /\b(salud|medico|hospital|clinica|enfermedad|eps|prepagada|sura|global|clasica|doctores|cirugia|maternidad|urgencia|citas|medicina|pediatra|especialista|paciente|cancer|tratamiento|examen|dolor|malestar|bienestar|cobertura medica|sanidad|hospitalario)\b/i,
                 hogar: /\b(casa|casas|hogar|vivienda|viviendas|apto|apartamento|techo|inmueble|finca|propiedad|edificio|conjunto|residencia|habitacion|lote|domicilio|arriendo|incendio|terremoto|inundacion|robo en casa|contenidos|electrodomesticos|arrendador|arrendatario)\b/i,
                 vida: /\b(vida|muerte|fallecer|familia|hijos|esposa|esposo|futuro|proteccion|seguro de vida|fallecimiento|incapacidad|educacion|universidad|respaldo|beneficiarios|deceso|exequial|funerario|pension|ahorro)\b/i,
-                
                 panico: /\b(choque|chocaron|accidente|accidentado|robo|robaron|atraco|varado|grua|auxilio|ayuda|emergencia|herido|sangre|policia|bomberos|incendio|fuego|hospitalizacion urgente|me estrelle|atropelle|socorro|ambulancia|grave|muerto|asesinato|desastre|me dieron|colision)\b/i,
-                
                 duda: /\b(no se|ni idea|no tengo|pendiente|luego|nose|no lo se|desconozco|tal vez|quizas|puede ser|no recuerdo|se me olvido)\b/i,
-                
                 saludo: /\b(hola|buenas|que tal|hello|hi|buenos dias|buenas tardes|buenas noches|holi|alo|hey|saludos|que mas|como estas)\b/i,
-                
                 ver_otros: /\b(ver otros|otro|cambiar|diferente|ninguno de esos|prefiero otro|opciones|menu|volver|atras|lista|mejor autos|mejor salud|mejor vivienda|mejor vida)\b/i,
                 comparar: /\b(diferencia|comparar|cual es mejor|distinto|vs|versus|cual elijo|cual recomiendas)\b/i
             },
-
             detect: function(text) {
                 if (this.patterns.ver_otros.test(text)) return 'ver_otros';
                 for (const [key, regex] of Object.entries(this.patterns)) {
@@ -327,91 +334,68 @@
             }
         };
 
-        // --- 3. UI CONTROLLER ---
         const UI = {
             updateIsland: (txt, expand = false, type = 'normal') => {
                 DOM.islandText.innerText = txt;
                 if (type === 'panic') DOM.island.classList.add('panic');
                 else if (type === 'blocked') DOM.island.classList.add('blocked');
                 else DOM.island.classList.remove('panic', 'blocked');
-                
-                if (expand) {
-                    DOM.island.classList.add('expanded');
-                    setTimeout(() => DOM.island.classList.remove('expanded'), 3500);
-                }
+                if (expand) { DOM.island.classList.add('expanded'); setTimeout(() => DOM.island.classList.remove('expanded'), 3500); }
             },
-            
             botSay: async (text, delay = 600, type = 'normal') => {
-                DOM.typing.style.display = "block";
-                DOM.chatWin.scrollTop = DOM.chatWin.scrollHeight;
-                await new Promise(r => setTimeout(r, delay));
-                DOM.typing.style.display = "none";
-                
+                DOM.typing.style.display = "block"; DOM.chatWin.scrollTop = DOM.chatWin.scrollHeight;
+                await new Promise(r => setTimeout(r, delay)); DOM.typing.style.display = "none";
                 const div = document.createElement('div');
                 div.className = state.panicMode ? "message bot panic" : (type === 'blocked' ? "message bot blocked" : "message bot");
                 div.innerHTML = `<div class="avatar">S</div><div class="bubble">${text}</div>`;
-                DOM.chatWin.appendChild(div);
-                DOM.chatWin.scrollTop = DOM.chatWin.scrollHeight;
+                DOM.chatWin.appendChild(div); DOM.chatWin.scrollTop = DOM.chatWin.scrollHeight;
             },
-            
             userSay: (text) => {
-                const div = document.createElement('div');
-                div.className = "message user";
-                div.innerHTML = `<div class="bubble">${text}</div>`;
-                DOM.chatWin.appendChild(div);
-                DOM.chatWin.scrollTop = DOM.chatWin.scrollHeight;
+                const div = document.createElement('div'); div.className = "message user"; div.innerHTML = `<div class="bubble">${text}</div>`;
+                DOM.chatWin.appendChild(div); DOM.chatWin.scrollTop = DOM.chatWin.scrollHeight;
             },
-
             setChips: (opts) => {
                 DOM.chips.innerHTML = "";
                 opts.forEach((o, i) => {
-                    const b = document.createElement('div');
-                    b.className = 'chip';
-                    b.innerText = o;
-                    b.style.animationDelay = `${i * 0.1}s`;
-                    b.onclick = () => { DOM.input.value = o; Core.process(); };
-                    DOM.chips.appendChild(b);
+                    const b = document.createElement('div'); b.className = 'chip'; b.innerText = o; b.style.animationDelay = `${i * 0.1}s`;
+                    b.onclick = () => { DOM.input.value = o; Core.process(); }; DOM.chips.appendChild(b);
                 });
             }
         };
 
-        // --- 4. LÓGICA COHETE (Strict Flow) ---
         const Core = {
             init: async () => {
                 const h = new Date().getHours();
                 const saludo = h < 12 ? "¡Buenos días!" : (h < 18 ? "¡Buenas tardes!" : "¡Buenas noches!");
                 UI.updateIsland("IA Activa", true);
-                await UI.botSay(`${saludo} Soy la IA de **Agencia SM Seguros**. Estoy lista para ayudarte.`);
+                await UI.botSay(`${saludo} Soy la IA de **Agencia SM Seguros**.`);
                 await UI.botSay("Para comenzar nuestro estudio, ¿aceptas el Aviso de Privacidad?");
                 UI.setChips(["Acepto términos ✅", "No acepto"]);
             },
-
-            resetScores: () => {
-                state.data.score = { salud: 0, autos: 0, hogar: 0, vida: 0 };
-            },
-
+            resetScores: () => { state.data.score = { salud: 0, autos: 0, hogar: 0, vida: 0 }; },
             process: async () => {
-                const txt = DOM.input.value.trim();
-                if (!txt) return;
-                
-                UI.userSay(txt);
-                DOM.input.value = "";
-                DOM.chips.innerHTML = "";
-                
-                const intent = NLP.detect(txt);
-                const lower = txt.toLowerCase();
+                const txt = DOM.input.value.trim(); if (!txt) return;
+                UI.userSay(txt); DOM.input.value = ""; DOM.chips.innerHTML = "";
+                const intent = NLP.detect(txt); const lower = txt.toLowerCase();
 
-                // >>> REINICIO "VER OTROS" (Arreglo del bucle) <<<
+                // 1. SMART CHECK (KB)
+                if (state.step > 0 && !state.panicMode) {
+                    const smartReply = KB.check(txt);
+                    if (smartReply) {
+                        await UI.botSay(smartReply);
+                        await UI.botSay("¿Podemos continuar con el dato que te pedí?");
+                        return; // No avanza el paso, solo responde
+                    }
+                }
+
+                // 2. REINICIO "VER OTROS"
                 if (intent === 'ver_otros' || (state.step > 0 && (lower.includes('autos') || lower.includes('salud')) && !lower.includes('plan'))) {
-                     state.step = 0; 
-                     Core.resetScores();
-                     // Si el usuario dice "mejor autos", detectamos la intención y asignamos
+                     state.step = 0; Core.resetScores();
                      if (intent === 'autos') state.data.ramo = 'Autos';
                      else if (intent === 'salud') state.data.ramo = 'Salud';
                      
                      if(state.data.ramo && intent !== 'ver_otros') {
-                         await UI.botSay(`Entendido, cambiamos a **${state.data.ramo}**. ¿Cuál es tu **Nombre Completo**?`);
-                         state.step = 1;
+                         await UI.botSay(`Entendido, cambiamos a **${state.data.ramo}**. ¿Cuál es tu **Nombre Completo**?`); state.step = 1;
                      } else {
                          await UI.botSay("Claro, te muestro todas las opciones. ¿Cuál prefieres?");
                          UI.setChips(["Salud 🏥", "Autos 🚗", "Vida 🎗️", "Vivienda 🏡"]);
@@ -419,196 +403,129 @@
                      return;
                 }
 
-                // >>> PÁNICO <<<
                 if (intent === 'panico') {
-                    state.panicMode = true;
-                    UI.updateIsland("🚨 EMERGENCIA", true, 'panic');
+                    state.panicMode = true; UI.updateIsland("🚨 EMERGENCIA", true, 'panic');
                     await UI.botSay("🚨 **HE DETECTADO UNA SITUACIÓN DE EMERGENCIA** 🚨");
-                    await UI.botSay("Por favor, mantén la calma. Si necesitas asistencia inmediata de SURA:");
-                    await UI.botSay("📞 **#888** (Desde celular)\n📞 **01 8000 51 8888** (Nacional)");
-                    state.step = 999;
-                    return;
+                    await UI.botSay("Por favor, mantén la calma. Líneas de atención SURA:");
+                    await UI.botSay("📞 **#888** (Celular)\n📞 **01 8000 51 8888** (Nacional)"); state.step = 999; return;
                 }
 
                 switch(state.step) {
                     case -2: // Privacidad
-                        // BLOQUEO ESTRICTO "NO ACEPTO"
                         if (intent === 'negacion' || lower.includes('no acepto')) {
                             UI.updateIsland("Acceso Denegado", true, 'blocked');
-                            await UI.botSay("Comprendo tu decisión. Sin embargo, por normatividad legal, **no puedo continuar** sin tu autorización.", 800, 'blocked');
-                            await UI.botSay("Si cambias de opinión, por favor confirma abajo.");
-                            UI.setChips(["Acepto términos ✅"]);
-                            return; 
+                            await UI.botSay("Comprendo. Por ley, **no puedo continuar** sin tu autorización.", 800, 'blocked');
+                            UI.setChips(["Acepto términos ✅"]); return; 
                         }
-
                         if (intent === 'afirmacion' || lower.includes('acepto')) {
-                            state.step = -1;
-                            UI.updateIsland("Privacidad ✅", true);
-                            await UI.botSay("Gracias por tu confianza. ¿Prefieres que **elijas tú** el seguro o que use mi **Inteligencia Artificial** para recomendarte?");
+                            state.step = -1; UI.updateIsland("Privacidad ✅", true);
+                            await UI.botSay("Gracias. ¿Prefieres elegir tú o usar mi **Recomendación IA**?");
                             UI.setChips(["Elegir Manualmente", "Recomendación IA ✨"]);
                         } else {
-                            await UI.botSay("Para avanzar, necesito que aceptes los términos.");
-                            UI.setChips(["Acepto términos ✅", "No acepto"]);
+                            await UI.botSay("Para avanzar, necesito que aceptes los términos."); UI.setChips(["Acepto términos ✅", "No acepto"]);
                         }
                         break;
 
                     case -1: // Elección
                         Core.resetScores(); 
                         if (lower.includes("ia") || lower.includes("recomenda")) {
-                            UI.updateIsland("Analizando Perfil...", true);
-                            await UI.botSay("Excelente elección. ¿Tienes personas que dependen económicamente de ti?");
-                            UI.setChips(["Sí", "No"]);
-                            state.step = "ia_1";
+                            UI.updateIsland("Analizando Perfil...", true); await UI.botSay("¿Tienes personas que dependen económicamente de ti?");
+                            UI.setChips(["Sí", "No"]); state.step = "ia_1";
                         } else if (lower.includes("elegir") || lower.includes("manual")) {
-                            state.step = 0;
-                            await UI.botSay("Entendido. ¿Qué ramo deseas cotizar hoy?");
+                            state.step = 0; await UI.botSay("¿Qué ramo deseas cotizar hoy?");
                             UI.setChips(["Salud 🏥", "Autos 🚗", "Vida 🎗️", "Vivienda 🏡"]);
                         } else {
-                            await UI.botSay("Selecciona una opción para continuar:");
-                            UI.setChips(["Elegir Manualmente", "Recomendación IA ✨"]);
+                            await UI.botSay("Selecciona una opción:"); UI.setChips(["Elegir Manualmente", "Recomendación IA ✨"]);
                         }
                         break;
 
-                    /* --- RAMAS IA (Prioridad Absoluta) --- */
                     case "ia_1":
                         if (intent === 'afirmacion') state.data.score.vida += 5;
-                        await UI.botSay("¿Cuál consideras tu prioridad #1 ahora mismo?");
-                        UI.setChips(["Salud 🏥", "Vehículo 🚗", "Hogar 🏡"]);
-                        state.step = "ia_2";
+                        await UI.botSay("¿Cuál consideras tu prioridad #1 ahora mismo?"); UI.setChips(["Salud 🏥", "Vehículo 🚗", "Hogar 🏡"]); state.step = "ia_2";
                         break;
 
                     case "ia_2":
-                        // ASIGNACIÓN DE 100 PUNTOS PARA EVITAR ERRORES
-                        if (intent === 'salud') state.data.score.salud += 100; 
-                        else if (intent === 'autos') state.data.score.autos += 100;
-                        else if (intent === 'hogar') state.data.score.hogar += 100;
-                        else {
-                            await UI.botSay("No entendí tu prioridad. ¿Es Salud, Vehículo o Hogar?");
-                            UI.setChips(["Salud 🏥", "Vehículo 🚗", "Hogar 🏡"]);
-                            return;
-                        }
-
-                        await UI.botSay("¿Sueles viajar fuera del país?");
-                        UI.setChips(["Sí, frecuente", "No mucho"]);
-                        state.step = "ia_3";
+                        if (intent === 'salud') state.data.score.salud += 100; else if (intent === 'autos') state.data.score.autos += 100; else if (intent === 'hogar') state.data.score.hogar += 100;
+                        else { await UI.botSay("No entendí tu prioridad. ¿Es Salud, Vehículo o Hogar?"); UI.setChips(["Salud 🏥", "Vehículo 🚗", "Hogar 🏡"]); return; }
+                        await UI.botSay("¿Sueles viajar fuera del país?"); UI.setChips(["Sí, frecuente", "No mucho"]); state.step = "ia_3";
                         break;
 
                     case "ia_3":
                         if (intent === 'afirmacion') state.data.score.salud += 10;
-                        
-                        let maxScore = -1;
-                        let rec = "Salud";
-                        
+                        let maxScore = -1, rec = "Salud";
                         if (state.data.score.autos > maxScore) { maxScore = state.data.score.autos; rec = "Autos"; }
                         if (state.data.score.hogar > maxScore) { maxScore = state.data.score.hogar; rec = "Vivienda"; }
                         if (state.data.score.salud > maxScore) { maxScore = state.data.score.salud; rec = "Salud"; }
                         if (state.data.score.vida > maxScore && maxScore < 20) { rec = "Vida"; } 
-
-                        state.data.ramo = rec;
-                        UI.updateIsland("Sugerencia Lista", true);
-                        await UI.botSay(`Analizando tus respuestas, mi sistema sugiere iniciar con **${rec}**. ¿Te parece bien?`);
-                        UI.setChips([`Sí, cotizar ${rec}`, "Ver otros"]);
-                        state.step = "ia_valida";
+                        state.data.ramo = rec; UI.updateIsland("Sugerencia Lista", true);
+                        await UI.botSay(`Según mi análisis, sugiero **${rec}**. ¿Te parece bien?`); UI.setChips([`Sí, cotizar ${rec}`, "Ver otros"]); state.step = "ia_valida";
                         break;
 
-                    /* --- SELECCIÓN DE RAMO --- */
                     case "ia_valida":
                     case 0:
-                        // Si viene de IA y dice "Sí", mantenemos el ramo recomendado
-                        if (state.step === "ia_valida" && intent === 'afirmacion') {
-                             // No cambia el ramo
-                        } 
-                        else if (intent === 'autos') state.data.ramo = "Autos";
-                        else if (intent === 'hogar') state.data.ramo = "Vivienda";
-                        else if (intent === 'vida') state.data.ramo = "Vida";
-                        else if (intent === 'salud') state.data.ramo = "Salud";
-                        else {
-                            await UI.botSay("No identifiqué el ramo. Por favor selecciona uno de la lista:");
-                            UI.setChips(["Salud 🏥", "Autos 🚗", "Vida 🎗️", "Vivienda 🏡"]);
-                            return;
-                        }
+                        if (state.step === "ia_valida" && intent === 'afirmacion') { /* Mantiene ramo */ } 
+                        else if (intent === 'autos') state.data.ramo = "Autos"; else if (intent === 'hogar') state.data.ramo = "Vivienda";
+                        else if (intent === 'vida') state.data.ramo = "Vida"; else if (intent === 'salud') state.data.ramo = "Salud";
+                        else { await UI.botSay("No identifiqué el ramo. Selecciona uno:"); UI.setChips(["Salud 🏥", "Autos 🚗", "Vida 🎗️", "Vivienda 🏡"]); return; }
 
                         if (state.data.ramo === "Salud") {
-                            await UI.botSay("Para Salud, ¿qué plan prefieres?");
-                            UI.setChips(["Global 🌍 (Internacional)", "Clásica 🇨🇴 (Nacional)", "Ver diferencias"]);
-                            state.step = "plan_salud";
+                            await UI.botSay("Para Salud, ¿qué plan prefieres?"); UI.setChips(["Global 🌍 (Internacional)", "Clásica 🇨🇴 (Nacional)", "Ver diferencias"]); state.step = "plan_salud";
                         } else {
-                            await UI.botSay(`Perfecto, cotizaremos **${state.data.ramo}**. ¿Cuál es tu **Nombre Completo**?`);
-                            state.step = 1;
+                            await UI.botSay(`Perfecto, cotizaremos **${state.data.ramo}**. ¿Cuál es tu **Nombre Completo**?`); state.step = 1;
                         }
                         break;
 
                     case "plan_salud":
                         if (lower.includes("diferencia") || lower.includes("ver") || intent === 'comparar') {
                             UI.updateIsland("Comparando...", true);
-                            await UI.botSay(`La Póliza Global de SURA ofrece cobertura médica nacional e internacional, incluyendo emergencias y tratamientos fuera de Colombia con habitación semiprivada, mientras que la Clásica es un plan tradicional con cobertura principalmente nacional, aunque con acceso a clínicas de alta calidad y habitación individual.<br><br><strong>Póliza Salud Global</strong><br>• <strong>Cobertura:</strong> Nacional e Internacional.<br>• <strong>Internacional:</strong> Incluye gastos hospitalarios y UCI en el extranjero.<br>• <strong>Tratamientos:</strong> Terapias de alto costo, prótesis, quimio, diálisis y traslados aéreos.<br>• <strong>Beneficio clave:</strong> Ideal para viajes y emergencias internacionales.<br><br><strong>Póliza Salud Clásica</strong><br>• <strong>Cobertura:</strong> Principalmente nacional.<br>• <strong>Habitación:</strong> Ofrece habitación individual.<br>• <strong>Tratamientos:</strong> Gastos hospitalarios, honorarios médicos y cirugías.<br>• <strong>Beneficio clave:</strong> Plan robusto nacional con máxima comodidad.`);
-                            UI.setChips(["Global 🌍", "Clásica 🇨🇴"]);
-                            return;
+                            await UI.botSay(`La Póliza Global ofrece cobertura mundial (UCI extranjero, viajes). La Clásica es un plan nacional robusto con habitación individual.<br><br><strong>Póliza Global 🌍</strong><br>• Internacional + Viajes<br>• Hab. Semiprivada<br><br><strong>Póliza Clásica 🇨🇴</strong><br>• Nacional Élite<br>• Hab. Individual`);
+                            UI.setChips(["Global 🌍", "Clásica 🇨🇴"]); return;
                         }
-                        state.data.plan = txt;
-                        await UI.botSay("Entendido. ¿Cuál es tu **Nombre Completo**?");
-                        state.step = 1;
+                        state.data.plan = txt; await UI.botSay("Entendido. ¿Cuál es tu **Nombre Completo**?"); state.step = 1;
                         break;
 
                     case 1: // Nombre
-                        if (txt.length < 3) { await UI.botSay("Por favor escribe un nombre y apellido válido."); return; }
-                        if (intent === 'saludo') { await UI.botSay("Hola. Necesito tu nombre para el registro."); return; }
-                        state.data.nombre = txt;
-                        UI.updateIsland("Nombre Guardado", true);
-                        await UI.botSay(`Un gusto, ${txt.split(" ")[0]}. ¿Cuál es tu **Número de Cédula**?`);
-                        state.step = 2;
+                        if (txt.length < 3) { await UI.botSay("Por favor escribe un nombre válido."); return; }
+                        state.data.nombre = txt; UI.updateIsland("Nombre Guardado", true);
+                        await UI.botSay(`Un gusto, ${txt.split(" ")[0]}. ¿Cuál es tu **Número de Cédula**?`); state.step = 2;
                         break;
 
-                    case 2: // Cédula (Transition to Extra)
+                    case 2: // Cédula
                         state.data.cedula = intent === 'duda' ? "Pendiente" : txt;
-                        
                         if (state.data.ramo === "Autos") {
-                            await UI.botSay("¿Cuál es la **Placa** del vehículo? (Ej: ABC-123)");
-                            state.step = "placa_auto"; // NUEVO PASO ESTRICTO
+                            await UI.botSay("¿Cuál es la **Placa** del vehículo? (Ej: GTY-567)"); state.step = "placa_auto";
                         } else if (state.data.ramo === "Vivienda") {
-                            await UI.botSay("¿Cuál es la **Dirección** del inmueble?");
-                            state.step = "extra";
+                            await UI.botSay("¿Cuál es la **Dirección** del inmueble?"); state.step = "extra";
                         } else {
-                            await UI.botSay("¿Cuál es tu **Fecha de Nacimiento**? (Ej: 15/05/1990)");
-                            state.step = "extra";
+                            await UI.botSay("¿Cuál es tu **Fecha de Nacimiento**? (Ej: 15/05/1990)"); state.step = "extra";
                         }
                         break;
 
-                    // --- FLUJO ESTRICTO AUTOS ---
+                    /* --- FLUJO AUTO OPTIMIZADO (Placa -> Nacimiento) --- */
                     case "placa_auto":
-                        // Validación Placa (3 letras, 3 numeros aprox)
                         const placaClean = txt.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                        if (placaClean.length < 5 || !/\d/.test(placaClean)) {
-                            await UI.botSay("⚠️ La placa no parece válida. Por favor verifica (Ej: GTY-567).");
-                            return; // Bucle hasta que sea válido
-                        }
-                        state.data.extra = txt.toUpperCase(); // Guardamos Placa
-                        await UI.botSay("¿Qué **Modelo (Año)** es?");
-                        state.step = "modelo_auto";
+                        if (placaClean.length < 5 || !/\d/.test(placaClean)) { await UI.botSay("⚠️ Placa no válida. Intenta de nuevo (Ej: ABC-123)."); return; }
+                        state.data.extra = txt.toUpperCase(); // Save Placa
+                        await UI.botSay("¿Cuál es tu **Fecha de Nacimiento**? (Para calcular tu tarifa)"); state.step = "nacimiento_auto";
                         break;
 
-                    case "modelo_auto":
-                        // Validación Año (4 dígitos)
-                        if (!/\d{4}/.test(txt)) {
-                            await UI.botSay("⚠️ Por favor escribe un año válido de 4 dígitos (Ej: 2024).");
-                            return;
+                    case "nacimiento_auto":
+                        state.data.nacimiento = txt; // Save Auto DOB
+                        if (txt.match(/\d{4}/)) {
+                            const year = parseInt(txt.match(/\d{4}/)[0]); const age = new Date().getFullYear() - year;
+                            if (age > 0 && age < 100) await UI.botSay(`Entendido, ${age} años.`);
                         }
-                        state.data.modelo = txt;
                         await UI.botSay("Para finalizar, ¿en qué horario prefieres que Santiago te contacte?");
-                        UI.setChips(["Hoy mismo", "Mañana AM", "Mañana PM"]);
-                        state.step = 4;
+                        UI.setChips(["Hoy mismo", "Mañana AM", "Mañana PM"]); state.step = 4;
                         break;
                     
-                    // --- FLUJO GENERAL ---
+                    /* --- OTROS FLUJOS --- */
                     case "extra": 
                         state.data.extra = intent === 'duda' ? "Pendiente" : txt;
-                        
                         if ((state.data.ramo === "Salud" || state.data.ramo === "Vida") && txt.match(/\d{4}/)) {
-                            const year = parseInt(txt.match(/\d{4}/)[0]);
-                            const age = new Date().getFullYear() - year;
-                            if (age > 0 && age < 100) await UI.botSay(`Veo que tienes aprox. **${age} años**. Es una excelente edad para asegurarse.`);
+                            const year = parseInt(txt.match(/\d{4}/)[0]); const age = new Date().getFullYear() - year;
+                            if (age > 0 && age < 100) await UI.botSay(`Veo que tienes aprox. **${age} años**. Bien.`);
                         }
-
                         if (state.data.ramo === "Vivienda") { await UI.botSay("¿Valor comercial aprox?"); state.step = "modelo"; }
                         else { state.step = 3; Core.process(); } 
                         break;
@@ -617,29 +534,24 @@
                     case 3:
                         if (state.step === "modelo") state.data.modelo = txt;
                         await UI.botSay("Para finalizar, ¿en qué horario prefieres que Santiago te contacte?");
-                        UI.setChips(["Hoy mismo", "Mañana AM", "Mañana PM"]);
-                        state.step = 4;
+                        UI.setChips(["Hoy mismo", "Mañana AM", "Mañana PM"]); state.step = 4;
                         break;
 
                     case 4:
-                        state.data.horario = txt;
-                        UI.updateIsland("Estudio Finalizado", true);
-                        
+                        state.data.horario = txt; UI.updateIsland("Estudio Finalizado", true);
                         let info = "";
-                        if(state.data.ramo === "Autos") info = `%0A- 🚗 Placa: ${state.data.extra}%0A- 📅 Modelo: ${state.data.modelo}`;
+                        // CONSTRUCCIÓN MENSAJE FINAL
+                        if(state.data.ramo === "Autos") info = `%0A- 🚗 Placa: ${state.data.extra}%0A- 🎂 Nacimiento: ${state.data.nacimiento}`; // NO MODELO
                         else if(state.data.ramo === "Vivienda") info = `%0A- 🏠 Dir: ${state.data.extra}%0A- 💰 Valor: ${state.data.modelo}`;
                         else info = `%0A- 🎂 Nacimiento: ${state.data.extra}`;
                         if(state.data.plan) info += `%0A- 🏥 Plan: ${state.data.plan}`;
 
                         const link = `https://wa.me/573014633995?text=Hola Santiago, soy ${state.data.nombre}.%0A%0ASolicito cotización *${state.data.ramo.toUpperCase()}*:%0A- 🆔 Cédula: ${state.data.cedula}${info}%0A- ⏰ Contacto: ${state.data.horario}`;
                         
-                        await UI.botSay(`**¡ESTUDIO COMPLETADO!** 🚀<br>He preparado toda la información. Presiona el botón para enviarla directamente a Santiago.`);
-                        
-                        const btnDiv = document.createElement('div');
-                        btnDiv.className = "message bot";
+                        await UI.botSay(`**¡ESTUDIO COMPLETADO!** 🚀<br>He preparado toda la información. Presiona el botón para enviarla a Santiago.`);
+                        const btnDiv = document.createElement('div'); btnDiv.className = "message bot";
                         btnDiv.innerHTML = `<div class="bubble" style="background:transparent; padding:0; box-shadow:none;"><a href="${link}" target="_blank" style="display:block; background:var(--success); color:white; padding:15px; border-radius:15px; text-decoration:none; text-align:center; font-weight:bold; box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4); transform: scale(1); transition:0.3s;">ENVIAR A WHATSAPP <i class="fab fa-whatsapp"></i></a></div>`;
-                        DOM.chatWin.appendChild(btnDiv);
-                        DOM.chatWin.scrollTop = DOM.chatWin.scrollHeight;
+                        DOM.chatWin.appendChild(btnDiv); DOM.chatWin.scrollTop = DOM.chatWin.scrollHeight;
                         break;
                 }
             }
@@ -647,7 +559,6 @@
 
         DOM.form.addEventListener('submit', (e) => { e.preventDefault(); Core.process(); });
         window.onload = Core.init;
-
     </script>
 </body>
 </html>
