@@ -88,7 +88,7 @@
             backdrop-filter: blur(30px);
         }
 
-        /* --- ISLA DINÁMICA (CEREBRO VISUAL) --- */
+        /* --- ISLA DINÁMICA --- */
         .island-container { 
             position: absolute; top: 20px; left: 50%; 
             transform: translateX(-50%); z-index: 3000; 
@@ -124,7 +124,6 @@
             scroll-behavior: smooth; 
         }
         
-        /* Mensajes con física */
         .message { display: flex; gap: 12px; opacity: 0; animation: elasticPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .message.user { flex-direction: row-reverse; }
         
@@ -160,7 +159,6 @@
             box-shadow: 0 5px 15px rgba(0, 113, 227, 0.25);
         }
         
-        /* ALERTAS */
         .bot.panic .bubble { background: #FFF1F2; color: #BE123C; border: 1px solid #FDA4AF; animation: shake 0.5s; }
         .bot.blocked .bubble { background: #F3F4F6; color: #374151; border-left: 4px solid #6B7280; }
 
@@ -189,7 +187,7 @@
         .chip:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.1); color: var(--accent); }
         .chip:active { transform: scale(0.95); }
 
-        /* --- INPUT GLASSMORPHISM --- */
+        /* --- INPUT --- */
         .input-container { padding: 10px 5% 40px; background: transparent; }
         .input-wrapper { 
             display: flex; align-items: center; 
@@ -298,37 +296,30 @@
             panicMode: false
         };
 
-        // --- 2. DICCIONARIO NLP DE ALTA GAMA (Patrones RegEx) ---
+        // --- 2. NLP AVANZADO (RegEx + Plurales) ---
         const NLP = {
             patterns: {
                 afirmacion: /^(si|sí|claro|obvio|por supuesto|dale|de una|acepto|yes|ok|vale|listo|bueno|confirmo|correcto|exacto|afirmativo|efectivamente|así es|total|hágale|seguro que si|me interesa|vamos)$/i,
                 negacion: /^(no|nel|jamas|nunca|para nada|no acepto|negativo|cancelar|paso|no gracias|nop|nanay|desisto|rechazo|no me interesa|ninguno)$/i,
                 
-                // Intenciones de Ramo (Expandidas)
-                autos: /\b(auto|carro|coche|vehiculo|automovil|camioneta|suv|mazda|chevrolet|toyota|kia|renault|nissan|ford|bmw|mercedes|audi|volvo|volkswagen|moto|motor|ruedas|transporte|conducir|manejar|placa|4x4|pickup|twingo|spark|logan|sandero|duster|fierro|nave|cuatro ruedas|vial|soat|poliza de carro)\b/i,
+                // Intenciones de Ramo (Expandidas y Plurales)
+                autos: /\b(auto|autos|carro|carros|coche|coches|vehiculo|vehiculos|automovil|camioneta|suv|mazda|chevrolet|toyota|kia|renault|nissan|ford|bmw|mercedes|audi|volvo|volkswagen|moto|motos|motor|ruedas|transporte|conducir|manejar|placa|4x4|pickup|twingo|spark|logan|sandero|duster|fierro|nave|cuatro ruedas|vial|soat|poliza de carro)\b/i,
                 salud: /\b(salud|medico|hospital|clinica|enfermedad|eps|prepagada|sura|global|clasica|doctores|cirugia|maternidad|urgencia|citas|medicina|pediatra|especialista|paciente|cancer|tratamiento|examen|dolor|malestar|bienestar|cobertura medica|sanidad|hospitalario)\b/i,
-                hogar: /\b(casa|hogar|vivienda|apto|apartamento|techo|inmueble|finca|propiedad|edificio|conjunto|residencia|habitacion|lote|domicilio|arriendo|incendio|terremoto|inundacion|robo en casa|contenidos|electrodomesticos|arrendador|arrendatario)\b/i,
+                hogar: /\b(casa|casas|hogar|vivienda|viviendas|apto|apartamento|techo|inmueble|finca|propiedad|edificio|conjunto|residencia|habitacion|lote|domicilio|arriendo|incendio|terremoto|inundacion|robo en casa|contenidos|electrodomesticos|arrendador|arrendatario)\b/i,
                 vida: /\b(vida|muerte|fallecer|familia|hijos|esposa|esposo|futuro|proteccion|seguro de vida|fallecimiento|incapacidad|educacion|universidad|respaldo|beneficiarios|deceso|exequial|funerario|pension|ahorro)\b/i,
                 
-                // Pánico / Emergencia (Prioridad Absoluta)
                 panico: /\b(choque|chocaron|accidente|accidentado|robo|robaron|atraco|varado|grua|auxilio|ayuda|emergencia|herido|sangre|policia|bomberos|incendio|fuego|hospitalizacion urgente|me estrelle|atropelle|socorro|ambulancia|grave|muerto|asesinato|desastre|me dieron|colision)\b/i,
                 
-                // Variaciones de duda
                 duda: /\b(no se|ni idea|no tengo|pendiente|luego|nose|no lo se|desconozco|tal vez|quizas|puede ser|no recuerdo|se me olvido)\b/i,
                 
-                // Saludo
                 saludo: /\b(hola|buenas|que tal|hello|hi|buenos dias|buenas tardes|buenas noches|holi|alo|hey|saludos|que mas|como estas)\b/i,
                 
-                // Comandos
-                ver_otros: /\b(ver otros|otro|cambiar|diferente|ninguno de esos|prefiero otro|opciones|menu|volver|atras|lista|mejor autos|mejor salud)\b/i,
+                ver_otros: /\b(ver otros|otro|cambiar|diferente|ninguno de esos|prefiero otro|opciones|menu|volver|atras|lista|mejor autos|mejor salud|mejor vivienda|mejor vida)\b/i,
                 comparar: /\b(diferencia|comparar|cual es mejor|distinto|vs|versus|cual elijo|cual recomiendas)\b/i
             },
 
             detect: function(text) {
-                // Prioridad 1: Ver otros (Para desbloquear bucles)
                 if (this.patterns.ver_otros.test(text)) return 'ver_otros';
-                
-                // Prioridad 2: Resto de patrones
                 for (const [key, regex] of Object.entries(this.patterns)) {
                     if (regex.test(text)) return key;
                 }
@@ -336,7 +327,7 @@
             }
         };
 
-        // --- 3. UI CONTROLLER (Animaciones) ---
+        // --- 3. UI CONTROLLER ---
         const UI = {
             updateIsland: (txt, expand = false, type = 'normal') => {
                 DOM.islandText.innerText = txt;
@@ -384,7 +375,7 @@
             }
         };
 
-        // --- 4. NÚCLEO LÓGICO (Corrección de Errores) ---
+        // --- 4. LÓGICA COHETE (Strict Flow) ---
         const Core = {
             init: async () => {
                 const h = new Date().getHours();
@@ -410,10 +401,11 @@
                 const intent = NLP.detect(txt);
                 const lower = txt.toLowerCase();
 
-                // >>> BLOQUE DE SEGURIDAD: VER OTROS (Desbloqueo inmediato) <<<
+                // >>> REINICIO "VER OTROS" (Arreglo del bucle) <<<
                 if (intent === 'ver_otros' || (state.step > 0 && (lower.includes('autos') || lower.includes('salud')) && !lower.includes('plan'))) {
-                     state.step = 0; // Forzar estado de selección manual
-                     // Detectar si el usuario ya dijo qué quiere
+                     state.step = 0; 
+                     Core.resetScores();
+                     // Si el usuario dice "mejor autos", detectamos la intención y asignamos
                      if (intent === 'autos') state.data.ramo = 'Autos';
                      else if (intent === 'salud') state.data.ramo = 'Salud';
                      
@@ -421,13 +413,13 @@
                          await UI.botSay(`Entendido, cambiamos a **${state.data.ramo}**. ¿Cuál es tu **Nombre Completo**?`);
                          state.step = 1;
                      } else {
-                         await UI.botSay("Entendido, te muestro todas las opciones disponibles. ¿Cuál prefieres?");
+                         await UI.botSay("Claro, te muestro todas las opciones. ¿Cuál prefieres?");
                          UI.setChips(["Salud 🏥", "Autos 🚗", "Vida 🎗️", "Vivienda 🏡"]);
                      }
                      return;
                 }
 
-                // >>> NIVEL 0: PÁNICO GLOBAL <<<
+                // >>> PÁNICO <<<
                 if (intent === 'panico') {
                     state.panicMode = true;
                     UI.updateIsland("🚨 EMERGENCIA", true, 'panic');
@@ -438,16 +430,15 @@
                     return;
                 }
 
-                // >>> NIVEL 1: FLUJO PRINCIPAL <<<
                 switch(state.step) {
                     case -2: // Privacidad
-                        // CORRECCIÓN "NO ACEPTO": Bloqueo estricto
+                        // BLOQUEO ESTRICTO "NO ACEPTO"
                         if (intent === 'negacion' || lower.includes('no acepto')) {
                             UI.updateIsland("Acceso Denegado", true, 'blocked');
                             await UI.botSay("Comprendo tu decisión. Sin embargo, por normatividad legal, **no puedo continuar** sin tu autorización.", 800, 'blocked');
                             await UI.botSay("Si cambias de opinión, por favor confirma abajo.");
                             UI.setChips(["Acepto términos ✅"]);
-                            return; // IMPORTANTE: No avanza
+                            return; 
                         }
 
                         if (intent === 'afirmacion' || lower.includes('acepto')) {
@@ -461,7 +452,7 @@
                         }
                         break;
 
-                    case -1: // Elección Método
+                    case -1: // Elección
                         Core.resetScores(); 
                         if (lower.includes("ia") || lower.includes("recomenda")) {
                             UI.updateIsland("Analizando Perfil...", true);
@@ -478,7 +469,7 @@
                         }
                         break;
 
-                    /* --- RAMAS IA (Corregida prioridad Autos) --- */
+                    /* --- RAMAS IA (Prioridad Absoluta) --- */
                     case "ia_1":
                         if (intent === 'afirmacion') state.data.score.vida += 5;
                         await UI.botSay("¿Cuál consideras tu prioridad #1 ahora mismo?");
@@ -487,7 +478,7 @@
                         break;
 
                     case "ia_2":
-                        // LOGICA ROMPE-EMPATES: Asignación masiva de puntos
+                        // ASIGNACIÓN DE 100 PUNTOS PARA EVITAR ERRORES
                         if (intent === 'salud') state.data.score.salud += 100; 
                         else if (intent === 'autos') state.data.score.autos += 100;
                         else if (intent === 'hogar') state.data.score.hogar += 100;
@@ -505,7 +496,6 @@
                     case "ia_3":
                         if (intent === 'afirmacion') state.data.score.salud += 10;
                         
-                        // CÁLCULO ESTRICTO
                         let maxScore = -1;
                         let rec = "Salud";
                         
@@ -524,18 +514,18 @@
                     /* --- SELECCIÓN DE RAMO --- */
                     case "ia_valida":
                     case 0:
-                        if (intent === 'autos') state.data.ramo = "Autos";
+                        // Si viene de IA y dice "Sí", mantenemos el ramo recomendado
+                        if (state.step === "ia_valida" && intent === 'afirmacion') {
+                             // No cambia el ramo
+                        } 
+                        else if (intent === 'autos') state.data.ramo = "Autos";
                         else if (intent === 'hogar') state.data.ramo = "Vivienda";
                         else if (intent === 'vida') state.data.ramo = "Vida";
                         else if (intent === 'salud') state.data.ramo = "Salud";
                         else {
-                            if (state.step === "ia_valida" && intent === 'afirmacion') {
-                                // Mantiene el ramo recomendado
-                            } else {
-                                await UI.botSay("No identifiqué el ramo. Por favor selecciona uno de la lista:");
-                                UI.setChips(["Salud 🏥", "Autos 🚗", "Vida 🎗️", "Vivienda 🏡"]);
-                                return;
-                            }
+                            await UI.botSay("No identifiqué el ramo. Por favor selecciona uno de la lista:");
+                            UI.setChips(["Salud 🏥", "Autos 🚗", "Vida 🎗️", "Vivienda 🏡"]);
+                            return;
                         }
 
                         if (state.data.ramo === "Salud") {
@@ -548,7 +538,6 @@
                         }
                         break;
 
-                    /* --- LOGICA ESPECIFICA SALUD --- */
                     case "plan_salud":
                         if (lower.includes("diferencia") || lower.includes("ver") || intent === 'comparar') {
                             UI.updateIsland("Comparando...", true);
@@ -561,7 +550,6 @@
                         state.step = 1;
                         break;
 
-                    /* --- CAPTURA DE DATOS --- */
                     case 1: // Nombre
                         if (txt.length < 3) { await UI.botSay("Por favor escribe un nombre y apellido válido."); return; }
                         if (intent === 'saludo') { await UI.botSay("Hola. Necesito tu nombre para el registro."); return; }
@@ -571,12 +559,12 @@
                         state.step = 2;
                         break;
 
-                    case 2: // Cédula
+                    case 2: // Cédula (Transition to Extra)
                         state.data.cedula = intent === 'duda' ? "Pendiente" : txt;
                         
                         if (state.data.ramo === "Autos") {
-                            await UI.botSay("¿Cuál es la **Placa** del vehículo?");
-                            state.step = "extra";
+                            await UI.botSay("¿Cuál es la **Placa** del vehículo? (Ej: ABC-123)");
+                            state.step = "placa_auto"; // NUEVO PASO ESTRICTO
                         } else if (state.data.ramo === "Vivienda") {
                             await UI.botSay("¿Cuál es la **Dirección** del inmueble?");
                             state.step = "extra";
@@ -586,7 +574,33 @@
                         }
                         break;
 
-                    case "extra": // Dato Variable
+                    // --- FLUJO ESTRICTO AUTOS ---
+                    case "placa_auto":
+                        // Validación Placa (3 letras, 3 numeros aprox)
+                        const placaClean = txt.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                        if (placaClean.length < 5 || !/\d/.test(placaClean)) {
+                            await UI.botSay("⚠️ La placa no parece válida. Por favor verifica (Ej: GTY-567).");
+                            return; // Bucle hasta que sea válido
+                        }
+                        state.data.extra = txt.toUpperCase(); // Guardamos Placa
+                        await UI.botSay("¿Qué **Modelo (Año)** es?");
+                        state.step = "modelo_auto";
+                        break;
+
+                    case "modelo_auto":
+                        // Validación Año (4 dígitos)
+                        if (!/\d{4}/.test(txt)) {
+                            await UI.botSay("⚠️ Por favor escribe un año válido de 4 dígitos (Ej: 2024).");
+                            return;
+                        }
+                        state.data.modelo = txt;
+                        await UI.botSay("Para finalizar, ¿en qué horario prefieres que Santiago te contacte?");
+                        UI.setChips(["Hoy mismo", "Mañana AM", "Mañana PM"]);
+                        state.step = 4;
+                        break;
+                    
+                    // --- FLUJO GENERAL ---
+                    case "extra": 
                         state.data.extra = intent === 'duda' ? "Pendiente" : txt;
                         
                         if ((state.data.ramo === "Salud" || state.data.ramo === "Vida") && txt.match(/\d{4}/)) {
@@ -595,8 +609,7 @@
                             if (age > 0 && age < 100) await UI.botSay(`Veo que tienes aprox. **${age} años**. Es una excelente edad para asegurarse.`);
                         }
 
-                        if (state.data.ramo === "Autos") { await UI.botSay("¿Qué **Modelo (Año)** es?"); state.step = "modelo"; }
-                        else if (state.data.ramo === "Vivienda") { await UI.botSay("¿Valor comercial aprox?"); state.step = "modelo"; }
+                        if (state.data.ramo === "Vivienda") { await UI.botSay("¿Valor comercial aprox?"); state.step = "modelo"; }
                         else { state.step = 3; Core.process(); } 
                         break;
 
@@ -632,7 +645,6 @@
             }
         };
 
-        // --- 5. EVENT LISTENERS ---
         DOM.form.addEventListener('submit', (e) => { e.preventDefault(); Core.process(); });
         window.onload = Core.init;
 
