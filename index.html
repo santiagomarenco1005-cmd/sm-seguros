@@ -53,7 +53,8 @@
         }
 
         .brand-container { display: flex; align-items: center; text-decoration: none; }
-        /* TAMAÑO DE LOGO SM CORREGIDO */
+        
+        /* LOGO SM SEGUROS */
         .logo-img-full { height: 80px; width: auto; display: block; }
 
         .nav-menu { list-style: none; display: flex; gap: 30px; align-items: center; }
@@ -85,25 +86,17 @@
         .hero-title span { color: var(--primary); background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .hero-text { font-size: 1.5rem; color: var(--text-muted); max-width: 750px; margin: 0 auto 2.5rem auto; font-weight: 500; }
 
-        /* LOGOS ASEGURADORAS - CORREGIDOS */
+        /* LOGOS ASEGURADORAS */
         .insurer-logos-container {
             margin-top: 1rem;
             display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; padding: 20px;
             background: transparent;
         }
-        
         .insurer-logo { 
-            height: 65px; /* Tamaño aumentado */
-            width: auto; 
-            object-fit: contain; 
-            transition: all 0.4s ease; 
-            cursor: pointer; 
-            mix-blend-mode: multiply; /* Camuflaje con el fondo */
+            height: 65px; width: auto; object-fit: contain; transition: all 0.4s ease; cursor: pointer; 
+            mix-blend-mode: multiply; /* Efecto transparencia */
         }
-        
-        .insurer-logo:hover { 
-            transform: scale(1.1);
-        }
+        .insurer-logo:hover { transform: scale(1.1); }
         
         /* NOSOTROS */
         .about-card {
@@ -111,7 +104,7 @@
             text-align: center; border: 1px solid rgba(255,255,255,0.8); backdrop-filter: blur(20px);
         }
         .about-text { font-size: 1.35rem; line-height: 1.9; color: var(--text-dark); margin-bottom: 3.5rem; }
-        .texto-destacado { color: var(--primary); font-weight: 800; text-decoration: none; border-bottom: none; display: inline-block; }
+        .texto-destacado { color: var(--primary); font-weight: 800; display: inline-block; }
         .values-grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
         .value-item {
             background: white; padding: 15px 35px; border-radius: 50px;
@@ -120,18 +113,43 @@
         }
         .value-item:hover { background: var(--primary); color: white; transform: translateY(-3px); }
 
-        /* COTIZADOR */
+        /* COTIZADOR CON RAYITA DE DESPLAZAMIENTO */
         .cotizador-wrapper { background: white; border-radius: 30px; box-shadow: var(--shadow-soft); overflow: hidden; border: 1px solid rgba(0,0,0,0.05); }
-        .tabs { display: flex; background: #f8faff; padding: 15px; gap: 15px; overflow-x: auto; border-bottom: 1px solid #eee; }
+        
+        .tabs { 
+            display: flex; 
+            background: #f8faff; 
+            padding: 15px; 
+            gap: 15px; 
+            overflow-x: auto; /* Permite deslizar */
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px; /* Espacio extra para la rayita */
+        }
+
+        /* DISEÑO DE LA RAYITA (BARRA DE DESPLAZAMIENTO) */
+        .tabs::-webkit-scrollbar {
+            height: 5px; /* Altura de la rayita */
+        }
+        .tabs::-webkit-scrollbar-track {
+            background: #e0e0e0; 
+            border-radius: 10px;
+        }
+        .tabs::-webkit-scrollbar-thumb {
+            background: var(--secondary); /* Color azul de la rayita */
+            border-radius: 10px;
+        }
+
         .tab-btn {
             flex: 1; padding: 1.2rem; border: none; background: white; cursor: pointer;
             font-weight: 700; font-size: 1.1rem; color: var(--text-muted); transition: 0.3s;
             display: flex; align-items: center; justify-content: center; gap: 12px; 
             min-width: 150px; border-radius: 15px; border: 1px solid transparent;
+            white-space: nowrap; /* Evita que el texto se parta */
         }
         .tab-btn:hover { background: #f0f4f8; color: var(--primary); }
         .tab-btn.active { background: white; color: var(--primary); border-color: var(--secondary); box-shadow: 0 5px 15px rgba(0, 174, 199, 0.15); }
         .tab-btn i { font-size: 1.3rem; }
+
         .form-content { padding: 3.5rem; display: none; }
         .form-content.active { display: block; animation: fadeUp 0.6s ease; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -319,9 +337,9 @@
 
     <footer id="contacto">
         <h2 style="color:var(--primary); margin-bottom:25px; font-weight: 800;">Contáctanos</h2>
-        <p class="footer-info"><strong>Email:</strong> santiago.marenco@asesorsura.com</p>
-        <p class="footer-info"><strong>Móvil 1:</strong> +57 301 4633995</p>
-        <p class="footer-info"><strong>Móvil 2:</strong> +57 318 3471986</p>
+        <p class="footer-info"><i class="fas fa-envelope" style="color: var(--secondary); margin-right: 8px;"></i> <strong>Email:</strong> santiago.marenco@asesorsura.com</p>
+        <p class="footer-info"><i class="fas fa-phone-alt" style="color: var(--secondary); margin-right: 8px;"></i> <strong>Móvil 1:</strong> +57 301 4633995</p>
+        <p class="footer-info"><i class="fas fa-phone-alt" style="color: var(--secondary); margin-right: 8px;"></i> <strong>Móvil 2:</strong> +57 318 3471986</p>
         <br>
         <p style="font-size: 0.95rem; opacity: 0.7;">&copy; 2025 SM SEGUROS. Todos los derechos reservados.</p>
     </footer>
@@ -346,20 +364,26 @@
         function enviarWhatsapp(tipo) {
             const tel = "573014633995";
             let msg = "";
+            
             if(tipo === 'auto') {
                 let n = document.getElementById('auto-nombre').value;
                 let p = document.getElementById('auto-placa').value;
-                msg = `Hola SM SEGUROS, deseo cotizar AUTO para: ${n}. Placa: ${p}`;
+                let r = document.getElementById('auto-referencia').value;
+                msg = `Hola SM SEGUROS, deseo cotizar AUTO para: ${n}. Placa: ${p}. Referencia: ${r}`;
             } else if (tipo === 'salud') {
                 let n = document.getElementById('salud-nombre').value;
-                msg = `Hola SM SEGUROS, deseo cotizar SALUD para: ${n}`;
+                let t = document.getElementById('salud-tipo').value;
+                msg = `Hola SM SEGUROS, deseo cotizar SALUD (${t}) para: ${n}`;
             } else if (tipo === 'vida') {
                 let n = document.getElementById('vida-nombre').value;
-                msg = `Hola SM SEGUROS, deseo cotizar VIDA para: ${n}`;
+                let v = document.getElementById('vida-valor').value;
+                msg = `Hola SM SEGUROS, deseo cotizar VIDA para: ${n}. Valor aprox: ${v}`;
             } else if (tipo === 'hogar') {
                 let n = document.getElementById('hogar-nombre').value;
-                msg = `Hola SM SEGUROS, deseo cotizar HOGAR para: ${n}`;
+                let c = document.getElementById('hogar-ciudad').value;
+                msg = `Hola SM SEGUROS, deseo cotizar HOGAR en ${c}. Propietario: ${n}`;
             }
+            
             window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
         }
     </script>
