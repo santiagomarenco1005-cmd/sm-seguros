@@ -53,8 +53,6 @@
         }
 
         .brand-container { display: flex; align-items: center; text-decoration: none; }
-        
-        /* LOGO SM SEGUROS */
         .logo-img-full { height: 80px; width: auto; display: block; }
 
         .nav-menu { list-style: none; display: flex; gap: 30px; align-items: center; }
@@ -97,7 +95,7 @@
             mix-blend-mode: multiply; /* Efecto transparencia */
         }
         .insurer-logo:hover { transform: scale(1.1); }
-        
+
         /* NOSOTROS */
         .about-card {
             background: rgba(255, 255, 255, 0.9); padding: 4rem; border-radius: 30px; box-shadow: var(--shadow-soft);
@@ -113,38 +111,21 @@
         }
         .value-item:hover { background: var(--primary); color: white; transform: translateY(-3px); }
 
-        /* COTIZADOR CON RAYITA DE DESPLAZAMIENTO */
+        /* COTIZADOR */
         .cotizador-wrapper { background: white; border-radius: 30px; box-shadow: var(--shadow-soft); overflow: hidden; border: 1px solid rgba(0,0,0,0.05); }
-        
         .tabs { 
-            display: flex; 
-            background: #f8faff; 
-            padding: 15px; 
-            gap: 15px; 
-            overflow-x: auto; /* Permite deslizar */
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px; /* Espacio extra para la rayita */
+            display: flex; background: #f8faff; padding: 15px; gap: 15px; 
+            overflow-x: auto; border-bottom: 1px solid #eee; padding-bottom: 10px; 
         }
-
-        /* DISEÑO DE LA RAYITA (BARRA DE DESPLAZAMIENTO) */
-        .tabs::-webkit-scrollbar {
-            height: 5px; /* Altura de la rayita */
-        }
-        .tabs::-webkit-scrollbar-track {
-            background: #e0e0e0; 
-            border-radius: 10px;
-        }
-        .tabs::-webkit-scrollbar-thumb {
-            background: var(--secondary); /* Color azul de la rayita */
-            border-radius: 10px;
-        }
+        .tabs::-webkit-scrollbar { height: 5px; }
+        .tabs::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
+        .tabs::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
 
         .tab-btn {
             flex: 1; padding: 1.2rem; border: none; background: white; cursor: pointer;
             font-weight: 700; font-size: 1.1rem; color: var(--text-muted); transition: 0.3s;
             display: flex; align-items: center; justify-content: center; gap: 12px; 
-            min-width: 150px; border-radius: 15px; border: 1px solid transparent;
-            white-space: nowrap; /* Evita que el texto se parta */
+            min-width: 150px; border-radius: 15px; border: 1px solid transparent; white-space: nowrap;
         }
         .tab-btn:hover { background: #f0f4f8; color: var(--primary); }
         .tab-btn.active { background: white; color: var(--primary); border-color: var(--secondary); box-shadow: 0 5px 15px rgba(0, 174, 199, 0.15); }
@@ -171,6 +152,16 @@
         footer { background: white; padding: 4rem 2rem; text-align: center; margin-top: 5rem; border-top: 1px solid #eee; box-shadow: 0 -10px 30px rgba(0,0,0,0.03); }
         .footer-info { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 12px; }
         .footer-info strong { color: var(--primary); }
+        
+        /* INSTAGRAM ICON FOOTER */
+        .social-link {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 45px; height: 45px; margin: 10px;
+            background: #f0f4f8; color: #E1306C; /* Color Instagram */
+            border-radius: 50%; text-decoration: none; font-size: 1.3rem;
+            transition: 0.3s;
+        }
+        .social-link:hover { background: #E1306C; color: white; transform: translateY(-3px); }
 
         /* WHATSAPP */
         .whatsapp-float { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: linear-gradient(135deg, #25d366, #128c7e); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4); z-index: 2000; transition: all 0.3s ease; text-decoration: none; }
@@ -241,6 +232,7 @@
                 <button class="tab-btn" onclick="openTab('salud')"><i class="fas fa-heartbeat"></i> Salud</button>
                 <button class="tab-btn" onclick="openTab('vida')"><i class="fas fa-user-shield"></i> Vida</button>
                 <button class="tab-btn" onclick="openTab('hogar')"><i class="fas fa-home"></i> Hogar</button>
+                <button class="tab-btn" onclick="openTab('viaje')"><i class="fas fa-plane"></i> Viaje</button>
             </div>
 
             <div id="auto" class="form-content active">
@@ -328,6 +320,25 @@
                     </button>
                 </form>
             </div>
+
+            <div id="viaje" class="form-content">
+                <div class="form-header">
+                    <h3>Seguro de Viaje</h3>
+                    <p>Viaja tranquilo con cobertura médica y asistencia internacional.</p>
+                </div>
+                <form>
+                    <div class="form-grid">
+                        <div class="full-width"><label>Destino</label><input type="text" id="viaje-destino" placeholder="Ej: España, Estados Unidos..."></div>
+                        <div><label>Fecha de Ida</label><input type="date" id="viaje-ida"></div>
+                        <div><label>Fecha de Vuelta</label><input type="date" id="viaje-vuelta"></div>
+                        <div><label>Número de Personas</label><input type="number" id="viaje-personas" placeholder="Ej: 2"></div>
+                    </div>
+                    <button type="button" class="cta-btn" onclick="enviarWhatsapp('viaje')">
+                        <i class="fab fa-whatsapp" style="font-size: 1.5rem;"></i> Solicitar Cotización Viaje
+                    </button>
+                </form>
+            </div>
+
         </div>
     </section>
 
@@ -340,6 +351,13 @@
         <p class="footer-info"><i class="fas fa-envelope" style="color: var(--secondary); margin-right: 8px;"></i> <strong>Email:</strong> santiago.marenco@asesorsura.com</p>
         <p class="footer-info"><i class="fas fa-phone-alt" style="color: var(--secondary); margin-right: 8px;"></i> <strong>Móvil 1:</strong> +57 301 4633995</p>
         <p class="footer-info"><i class="fas fa-phone-alt" style="color: var(--secondary); margin-right: 8px;"></i> <strong>Móvil 2:</strong> +57 318 3471986</p>
+        
+        <br>
+        <a href="https://www.instagram.com/smsegurosltda/" target="_blank" class="social-link" title="Síguenos en Instagram">
+            <i class="fab fa-instagram"></i>
+        </a>
+        <br>
+
         <br>
         <p style="font-size: 0.95rem; opacity: 0.7;">&copy; 2025 SM SEGUROS. Todos los derechos reservados.</p>
     </footer>
@@ -382,6 +400,12 @@
                 let n = document.getElementById('hogar-nombre').value;
                 let c = document.getElementById('hogar-ciudad').value;
                 msg = `Hola SM SEGUROS, deseo cotizar HOGAR en ${c}. Propietario: ${n}`;
+            } else if (tipo === 'viaje') {
+                let d = document.getElementById('viaje-destino').value;
+                let fi = document.getElementById('viaje-ida').value;
+                let fv = document.getElementById('viaje-vuelta').value;
+                let p = document.getElementById('viaje-personas').value;
+                msg = `Hola SM SEGUROS, deseo cotizar SEGURO DE VIAJE para ${p} personas. Destino: ${d}. Del ${fi} al ${fv}`;
             }
             
             window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
