@@ -113,6 +113,21 @@
 
         /* COTIZADOR */
         .cotizador-wrapper { background: white; border-radius: 30px; box-shadow: var(--shadow-soft); overflow: hidden; border: 1px solid rgba(0,0,0,0.05); }
+        
+        /* Indicador de Swipe (AHORA VISIBLE EN TODAS LAS PANTALLAS) */
+        .swipe-hint {
+            display: block; /* Visible siempre */
+            background: #eefbff;
+            color: var(--primary);
+            text-align: center;
+            font-size: 0.95rem;
+            padding: 10px;
+            font-weight: 700;
+            border-bottom: 1px solid #dcefef;
+            animation: pulse 2.5s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; transform: scale(1.01); } 100% { opacity: 0.8; transform: scale(1); } }
+
         .tabs { 
             display: flex; background: #f8faff; padding: 15px; gap: 15px; 
             overflow-x: auto; border-bottom: 1px solid #eee; padding-bottom: 10px; 
@@ -227,10 +242,15 @@
         <p class="section-desc">Selecciona la solución que necesitas y recibe asesoría inmediata vía WhatsApp.</p>
         
         <div class="cotizador-wrapper">
+            <div class="swipe-hint">
+                <i class="fas fa-arrows-alt-h"></i> Desliza para cotizar o ver más seguros <i class="fas fa-hand-point-up"></i>
+            </div>
+
             <div class="tabs">
                 <button class="tab-btn active" onclick="openTab('auto')"><i class="fas fa-car"></i> Autos</button>
                 <button class="tab-btn" onclick="openTab('salud')"><i class="fas fa-heartbeat"></i> Salud</button>
                 <button class="tab-btn" onclick="openTab('vida')"><i class="fas fa-user-shield"></i> Vida</button>
+                <button class="tab-btn" onclick="openTab('mascotas')"><i class="fas fa-dog"></i> Mascotas</button>
                 <button class="tab-btn" onclick="openTab('hogar')"><i class="fas fa-home"></i> Hogar</button>
                 <button class="tab-btn" onclick="openTab('viaje')"><i class="fas fa-plane"></i> Viaje</button>
             </div>
@@ -293,6 +313,26 @@
                     </div>
                     <button type="button" class="cta-btn" onclick="enviarWhatsapp('vida')">
                         <i class="fab fa-whatsapp" style="font-size: 1.5rem;"></i> Solicitar Cotización Vida
+                    </button>
+                </form>
+            </div>
+
+            <div id="mascotas" class="form-content">
+                <div class="form-header">
+                    <h3>Seguro para Mascotas</h3>
+                    <p>Protege a tu peludito con la mejor cobertura veterinaria y de responsabilidad civil.</p>
+                </div>
+                <form>
+                    <div class="form-grid">
+                        <div><label>Nombre (Propietario)</label><input type="text" id="mascota-propietario" placeholder="Tu nombre"></div>
+                        <div><label>Cédula (CC)</label><input type="number" id="mascota-cedula" placeholder="Número de documento"></div>
+                        <div><label>Fecha de Nacimiento (Propietario)</label><input type="date" id="mascota-nac-propietario"></div>
+                        <div><label>Nombre de Mascota</label><input type="text" id="mascota-nombre" placeholder="Ej: Firulais"></div>
+                        <div><label>Raza</label><input type="text" id="mascota-raza" placeholder="Ej: Golden Retriever"></div>
+                        <div><label>Edad Mascota (Años)</label><input type="number" id="mascota-edad" placeholder="Ej: 3"></div>
+                    </div>
+                    <button type="button" class="cta-btn" onclick="enviarWhatsapp('mascotas')">
+                        <i class="fab fa-whatsapp" style="font-size: 1.5rem;"></i> Solicitar Cotización Mascotas
                     </button>
                 </form>
             </div>
@@ -376,7 +416,8 @@
             }
             document.getElementById(tabName).style.display = "block";
             document.getElementById(tabName).classList.add('active');
-            event.currentTarget.classList.add('active');
+            var clickedBtn = document.querySelector(`button[onclick="openTab('${tabName}')"]`);
+            if(clickedBtn) clickedBtn.classList.add('active');
         }
 
         function enviarWhatsapp(tipo) {
@@ -396,6 +437,15 @@
                 let n = document.getElementById('vida-nombre').value;
                 let v = document.getElementById('vida-valor').value;
                 msg = `Hola SM SEGUROS, deseo cotizar VIDA para: ${n}. Valor aprox: ${v}`;
+            } else if (tipo === 'mascotas') {
+                let prop = document.getElementById('mascota-propietario').value;
+                let cc = document.getElementById('mascota-cedula').value;
+                let fnac = document.getElementById('mascota-nac-propietario').value;
+                let petName = document.getElementById('mascota-nombre').value;
+                let raza = document.getElementById('mascota-raza').value;
+                let edad = document.getElementById('mascota-edad').value;
+                
+                msg = `Hola SM SEGUROS, deseo cotizar SEGURO PARA MASCOTAS.\n\n*Datos Propietario:*\nNombre: ${prop}\nCC: ${cc}\nF. Nac: ${fnac}\n\n*Datos Mascota:*\nNombre: ${petName}\nRaza: ${raza}\nEdad: ${edad} años`;
             } else if (tipo === 'hogar') {
                 let n = document.getElementById('hogar-nombre').value;
                 let c = document.getElementById('hogar-ciudad').value;
