@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SM SEGUROS | Expertos en Seguros</title>
 
+    <link rel="preload" as="image" href="nuevo-logo-sm.jpg">
     <link rel="apple-touch-icon" href="nuevo-logo-sm.jpg">
     <link rel="icon" type="image/jpeg" href="nuevo-logo-sm.jpg">
     <meta name="apple-mobile-web-app-title" content="SM SEGUROS">
     <meta name="apple-mobile-web-app-capable" content="yes">
-
-    <link rel="preload" as="image" href="nuevo-logo-sm.jpg">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -21,9 +20,15 @@
             --text-muted: #546e7a;
             --radius: 24px;
             --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --header-height: 100px; /* Definimos altura para calculos */
         }
 
-        html { scroll-behavior: smooth; }
+        /* MEJORA DE SCROLL */
+        html { 
+            scroll-behavior: smooth; 
+            scroll-padding-top: var(--header-height); /* Evita cálculos pesados al aterrizar */
+        }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; }
         
         body { 
@@ -34,56 +39,80 @@
             overflow-x: hidden;
         }
 
-        /* FONDO */
-        .bg-shape { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.4; }
-        .shape1 { top: -20%; left: -20%; width: 600px; height: 600px; background: var(--secondary); animation: float 18s infinite alternate ease-in-out; }
-        .shape2 { bottom: -20%; right: -10%; width: 500px; height: 500px; background: var(--primary); animation: float 22s infinite alternate-reverse ease-in-out; }
-        @keyframes float { from { transform: translate(0,0) rotate(0deg); } to { transform: translate(50px, 50px) rotate(10deg); } }
+        /* FONDO OPTIMIZADO PARA GPU (ESTO EVITA QUE SE TRABE) */
+        .bg-shape { 
+            position: fixed; 
+            border-radius: 50%; 
+            filter: blur(80px); /* Reduje un poco el blur para rendimiento */
+            z-index: -1; 
+            opacity: 0.4;
+            /* Truco de aceleración de hardware: */
+            transform: translateZ(0);
+            will-change: transform; 
+            pointer-events: none; /* El mouse ignora esto, mejora velocidad */
+        }
+        
+        .shape1 { 
+            top: -10%; left: -10%; width: 500px; height: 500px; 
+            background: var(--secondary); 
+            animation: float 20s infinite alternate ease-in-out; 
+        }
+        .shape2 { 
+            bottom: -10%; right: -5%; width: 400px; height: 400px; 
+            background: var(--primary); 
+            animation: float 25s infinite alternate-reverse ease-in-out; 
+        }
+        
+        @keyframes float { 
+            from { transform: translate3d(0,0,0) rotate(0deg); } 
+            to { transform: translate3d(30px, 30px, 0) rotate(5deg); } 
+        }
 
-        /* HEADER */
+        /* HEADER OPTIMIZADO */
         header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 1rem 5%;
+            background: rgba(255, 255, 255, 0.92); /* Menos transparencia ayuda al renderizado */
+            backdrop-filter: blur(10px); /* Menos blur es más rápido */
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.8rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.03);
+            height: var(--header-height);
+            transition: transform 0.3s ease;
         }
 
         .brand-container { display: flex; align-items: center; text-decoration: none; }
-        
-        /* Aseguramos que el logo tenga dimensiones base para evitar saltos */
-        .logo-img-full { height: 80px; width: auto; display: block; min-width: 80px; }
+        .logo-img-full { height: 70px; width: auto; display: block; min-width: 70px; }
 
         .nav-menu { list-style: none; display: flex; gap: 30px; align-items: center; }
         .nav-menu a {
-            text-decoration: none; color: var(--text-dark); font-weight: 600; font-size: 1.1rem; transition: 0.3s; position: relative;
+            text-decoration: none; color: var(--text-dark); font-weight: 600; font-size: 1.1rem; transition: color 0.2s; position: relative;
         }
-        .nav-menu a::after { content: ''; position: absolute; width: 0; height: 3px; bottom: -5px; left: 0; background: var(--secondary); transition: 0.3s; border-radius: 2px; }
+        .nav-menu a::after { content: ''; position: absolute; width: 0; height: 3px; bottom: -5px; left: 0; background: var(--secondary); transition: width 0.3s; border-radius: 2px; }
         .nav-menu a:hover { color: var(--primary); }
         .nav-menu a:hover::after { width: 100%; }
         
         .btn-header {
             background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white !important; padding: 10px 25px; border-radius: 50px;
-            box-shadow: 0 5px 15px rgba(0, 174, 199, 0.3); transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 174, 199, 0.2); transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn-header:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 174, 199, 0.4); }
+        .btn-header:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 174, 199, 0.3); }
 
         /* SECCIONES */
-        section { padding: 5rem 20px; max-width: 1150px; margin: 0 auto; }
+        section { padding: 4rem 20px; max-width: 1150px; margin: 0 auto; }
         .section-title { 
             text-align: center; font-size: 2.8rem; color: var(--primary); margin-bottom: 1rem; font-weight: 800; letter-spacing: -1px;
         }
         .section-desc {
-            text-align: center; font-size: 1.25rem; margin-bottom: 3.5rem; color: var(--text-muted); max-width: 700px; margin-left: auto; margin-right: auto;
+            text-align: center; font-size: 1.25rem; margin-bottom: 3rem; color: var(--text-muted); max-width: 700px; margin-left: auto; margin-right: auto;
         }
 
         /* HERO */
-        #inicio { text-align: center; padding-top: 8rem; min-height: 75vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #inicio { text-align: center; padding-top: 2rem; min-height: 70vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .hero-title { font-size: 4rem; line-height: 1.1; margin-bottom: 1.5rem; color: var(--text-dark); }
         .hero-title span { color: var(--primary); background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .hero-text { font-size: 1.5rem; color: var(--text-muted); max-width: 750px; margin: 0 auto 2.5rem auto; font-weight: 500; }
@@ -92,33 +121,38 @@
         .insurer-logos-container {
             margin-top: 1rem;
             display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; padding: 20px;
-            background: transparent;
+            /* Eliminar backgrounds complejos ayuda al scroll */
         }
         .insurer-logo { 
-            height: 65px; width: auto; object-fit: contain; transition: all 0.4s ease; cursor: pointer; 
-            mix-blend-mode: multiply; /* Efecto transparencia */
+            height: 60px; width: auto; object-fit: contain; transition: transform 0.3s ease; cursor: pointer; 
+            mix-blend-mode: multiply; 
+            will-change: transform; /* Optimización */
         }
-        .insurer-logo:hover { transform: scale(1.1); }
+        .insurer-logo:hover { transform: scale(1.05); }
 
         /* NOSOTROS */
         .about-card {
-            background: rgba(255, 255, 255, 0.9); padding: 4rem; border-radius: 30px; box-shadow: var(--shadow-soft);
-            text-align: center; border: 1px solid rgba(255,255,255,0.8); backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.85); padding: 3.5rem; border-radius: 30px; box-shadow: var(--shadow-soft);
+            text-align: center; border: 1px solid rgba(255,255,255,0.8); 
+            /* Quitamos el backdrop-filter pesado aqui para móviles */
         }
-        .about-text { font-size: 1.35rem; line-height: 1.9; color: var(--text-dark); margin-bottom: 3.5rem; }
+        @media (min-width: 900px) {
+             .about-card { backdrop-filter: blur(10px); }
+        }
+
+        .about-text { font-size: 1.3rem; line-height: 1.8; color: var(--text-dark); margin-bottom: 3rem; }
         .texto-destacado { color: var(--primary); font-weight: 800; display: inline-block; }
         .values-grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
         .value-item {
-            background: white; padding: 15px 35px; border-radius: 50px;
-            color: var(--primary); font-weight: 700; font-size: 1.1rem; border: 2px solid var(--primary);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 10px; transition: 0.3s;
+            background: white; padding: 12px 30px; border-radius: 50px;
+            color: var(--primary); font-weight: 700; font-size: 1.05rem; border: 2px solid var(--primary);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 10px; transition: 0.2s;
         }
-        .value-item:hover { background: var(--primary); color: white; transform: translateY(-3px); }
+        .value-item:hover { background: var(--primary); color: white; transform: translateY(-2px); }
 
         /* COTIZADOR */
         .cotizador-wrapper { background: white; border-radius: 30px; box-shadow: var(--shadow-soft); overflow: hidden; border: 1px solid rgba(0,0,0,0.05); }
         
-        /* Indicador de Swipe (Solo texto y flechas) */
         .swipe-hint {
             display: block;
             background: #eefbff;
@@ -135,63 +169,64 @@
         .tabs { 
             display: flex; background: #f8faff; padding: 15px; gap: 15px; 
             overflow-x: auto; border-bottom: 1px solid #eee; padding-bottom: 10px; 
+            -webkit-overflow-scrolling: touch; /* Scroll suave nativo en iOS */
         }
-        .tabs::-webkit-scrollbar { height: 5px; }
+        .tabs::-webkit-scrollbar { height: 4px; }
         .tabs::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
         .tabs::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
 
         .tab-btn {
-            flex: 1; padding: 1.2rem; border: none; background: white; cursor: pointer;
-            font-weight: 700; font-size: 1.1rem; color: var(--text-muted); transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 12px; 
-            min-width: 150px; border-radius: 15px; border: 1px solid transparent; white-space: nowrap;
+            flex: 1; padding: 1rem; border: none; background: white; cursor: pointer;
+            font-weight: 700; font-size: 1rem; color: var(--text-muted); transition: background 0.2s, color 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            min-width: 140px; border-radius: 15px; border: 1px solid transparent; white-space: nowrap;
         }
         .tab-btn:hover { background: #f0f4f8; color: var(--primary); }
-        .tab-btn.active { background: white; color: var(--primary); border-color: var(--secondary); box-shadow: 0 5px 15px rgba(0, 174, 199, 0.15); }
-        .tab-btn i { font-size: 1.3rem; }
-
-        .form-content { padding: 3.5rem; display: none; }
-        .form-content.active { display: block; animation: fadeUp 0.6s ease; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .form-header h3 { font-size: 2rem; color: var(--primary); margin-bottom: 8px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .tab-btn.active { background: white; color: var(--primary); border-color: var(--secondary); box-shadow: 0 4px 12px rgba(0, 174, 199, 0.1); }
+        
+        .form-content { padding: 3rem; display: none; }
+        .form-content.active { display: block; animation: fadeUp 0.4s ease; } /* Animación más corta es más rápida */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .form-header h3 { font-size: 1.8rem; color: var(--primary); margin-bottom: 5px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
         .full-width { grid-column: span 2; }
-        label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 1rem; color: var(--text-dark); }
-        input, select { width: 100%; padding: 16px 20px; border: 2px solid #e1e8ed; border-radius: 15px; background: #f8faff; font-size: 1rem; transition: 0.3s; }
-        input:focus, select:focus { border-color: var(--secondary); background: white; box-shadow: 0 0 0 4px rgba(0, 174, 199, 0.1); outline: none; }
+        
+        label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.95rem; color: var(--text-dark); }
+        input, select { width: 100%; padding: 14px 18px; border: 2px solid #e1e8ed; border-radius: 12px; background: #f8faff; font-size: 1rem; transition: border-color 0.2s; }
+        input:focus, select:focus { border-color: var(--secondary); background: white; box-shadow: 0 0 0 3px rgba(0, 174, 199, 0.1); outline: none; }
+        
         .cta-btn {
-            width: 100%; margin-top: 2.5rem; padding: 1.4rem; 
+            width: 100%; margin-top: 2rem; padding: 1.2rem; 
             background: linear-gradient(135deg, var(--primary), var(--secondary)); 
-            color: white; border: none; border-radius: 18px; font-size: 1.3rem; font-weight: 800; cursor: pointer;
-            box-shadow: 0 10px 25px rgba(0, 51, 160, 0.2); transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 15px;
+            color: white; border: none; border-radius: 16px; font-size: 1.2rem; font-weight: 800; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 51, 160, 0.2); transition: transform 0.2s; display: flex; align-items: center; justify-content: center; gap: 12px;
         }
-        .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(0, 51, 160, 0.3); }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0, 51, 160, 0.25); }
 
         /* FOOTER */
-        footer { background: white; padding: 4rem 2rem; text-align: center; margin-top: 5rem; border-top: 1px solid #eee; box-shadow: 0 -10px 30px rgba(0,0,0,0.03); }
-        .footer-info { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 12px; }
-        .footer-info strong { color: var(--primary); }
+        footer { background: white; padding: 3rem 2rem; text-align: center; margin-top: 4rem; border-top: 1px solid #eee; }
         
-        /* INSTAGRAM ICON FOOTER */
+        /* SOCIAL & WHATSAPP */
         .social-link {
             display: inline-flex; align-items: center; justify-content: center;
             width: 45px; height: 45px; margin: 10px;
-            background: #f0f4f8; color: #E1306C; /* Color Instagram */
+            background: #f0f4f8; color: #E1306C;
             border-radius: 50%; text-decoration: none; font-size: 1.3rem;
-            transition: 0.3s;
+            transition: 0.2s;
         }
         .social-link:hover { background: #E1306C; color: white; transform: translateY(-3px); }
 
-        /* WHATSAPP */
-        .whatsapp-float { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: linear-gradient(135deg, #25d366, #128c7e); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4); z-index: 2000; transition: all 0.3s ease; text-decoration: none; }
-        .whatsapp-float:hover { transform: scale(1.1) rotate(10deg); }
+        .whatsapp-float { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background: linear-gradient(135deg, #25d366, #128c7e); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 15px rgba(37, 211, 102, 0.3); z-index: 2000; transition: transform 0.3s; text-decoration: none; }
+        .whatsapp-float:hover { transform: scale(1.05); }
 
         @media (max-width: 900px) {
-            .hero-title { font-size: 3rem; }
+            .hero-title { font-size: 2.8rem; }
             .form-grid { grid-template-columns: 1fr; }
             .full-width { grid-column: span 1; }
             .nav-menu { display: none; } 
             header { justify-content: center; }
+            .about-card { padding: 2rem; }
         }
     </style>
 </head>
