@@ -20,13 +20,13 @@
             --text-muted: #546e7a;
             --radius: 24px;
             --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
-            --header-height: 100px; /* Definimos altura para calculos */
+            --header-height: 100px;
         }
 
         /* MEJORA DE SCROLL */
         html { 
             scroll-behavior: smooth; 
-            scroll-padding-top: var(--header-height); /* Evita cálculos pesados al aterrizar */
+            scroll-padding-top: var(--header-height);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; }
@@ -39,17 +39,16 @@
             overflow-x: hidden;
         }
 
-        /* FONDO OPTIMIZADO PARA GPU (ESTO EVITA QUE SE TRABE) */
+        /* FONDO OPTIMIZADO PARA GPU */
         .bg-shape { 
             position: fixed; 
             border-radius: 50%; 
-            filter: blur(80px); /* Reduje un poco el blur para rendimiento */
+            filter: blur(80px); 
             z-index: -1; 
             opacity: 0.4;
-            /* Truco de aceleración de hardware: */
             transform: translateZ(0);
             will-change: transform; 
-            pointer-events: none; /* El mouse ignora esto, mejora velocidad */
+            pointer-events: none;
         }
         
         .shape1 { 
@@ -70,8 +69,8 @@
 
         /* HEADER OPTIMIZADO */
         header {
-            background: rgba(255, 255, 255, 0.92); /* Menos transparencia ayuda al renderizado */
-            backdrop-filter: blur(10px); /* Menos blur es más rápido */
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             padding: 0.8rem 5%;
             display: flex;
@@ -121,12 +120,11 @@
         .insurer-logos-container {
             margin-top: 1rem;
             display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; padding: 20px;
-            /* Eliminar backgrounds complejos ayuda al scroll */
         }
         .insurer-logo { 
             height: 60px; width: auto; object-fit: contain; transition: transform 0.3s ease; cursor: pointer; 
             mix-blend-mode: multiply; 
-            will-change: transform; /* Optimización */
+            will-change: transform; 
         }
         .insurer-logo:hover { transform: scale(1.05); }
 
@@ -134,7 +132,6 @@
         .about-card {
             background: rgba(255, 255, 255, 0.85); padding: 3.5rem; border-radius: 30px; box-shadow: var(--shadow-soft);
             text-align: center; border: 1px solid rgba(255,255,255,0.8); 
-            /* Quitamos el backdrop-filter pesado aqui para móviles */
         }
         @media (min-width: 900px) {
              .about-card { backdrop-filter: blur(10px); }
@@ -169,7 +166,7 @@
         .tabs { 
             display: flex; background: #f8faff; padding: 15px; gap: 15px; 
             overflow-x: auto; border-bottom: 1px solid #eee; padding-bottom: 10px; 
-            -webkit-overflow-scrolling: touch; /* Scroll suave nativo en iOS */
+            -webkit-overflow-scrolling: touch; 
         }
         .tabs::-webkit-scrollbar { height: 4px; }
         .tabs::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
@@ -185,7 +182,7 @@
         .tab-btn.active { background: white; color: var(--primary); border-color: var(--secondary); box-shadow: 0 4px 12px rgba(0, 174, 199, 0.1); }
         
         .form-content { padding: 3rem; display: none; }
-        .form-content.active { display: block; animation: fadeUp 0.4s ease; } /* Animación más corta es más rápida */
+        .form-content.active { display: block; animation: fadeUp 0.4s ease; } 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .form-header h3 { font-size: 1.8rem; color: var(--primary); margin-bottom: 5px; }
@@ -321,6 +318,7 @@
                 <form>
                     <div class="form-grid">
                         <div><label>Nombre Titular</label><input type="text" id="salud-nombre"></div>
+                        <div><label>Cédula / NIT</label><input type="number" id="salud-cedula" placeholder="Documento del titular"></div>
                         <div><label>Edad</label><input type="number" id="salud-edad"></div>
                         <div class="full-width">
                             <label>Tipo de Plan de Interés</label>
@@ -346,9 +344,10 @@
                 <form>
                     <div class="form-grid">
                         <div><label>Nombre Completo</label><input type="text" id="vida-nombre"></div>
+                        <div><label>Cédula / NIT</label><input type="number" id="vida-cedula" placeholder="Documento de identidad"></div>
                         <div><label>Fecha de Nacimiento</label><input type="date" id="vida-nacimiento"></div>
                         <div><label>Ocupación Principal</label><input type="text" id="vida-ocupacion"></div>
-                        <div><label>Valor Asegurado Deseado (Aprox)</label><input type="number" id="vida-valor" placeholder="$"></div>
+                        <div class="full-width"><label>Valor Asegurado Deseado (Aprox)</label><input type="number" id="vida-valor" placeholder="$"></div>
                     </div>
                     <button type="button" class="cta-btn" onclick="enviarWhatsapp('vida')">
                         <i class="fab fa-whatsapp" style="font-size: 1.5rem;"></i> Solicitar Cotización Vida
@@ -364,7 +363,7 @@
                 <form>
                     <div class="form-grid">
                         <div><label>Nombre (Propietario)</label><input type="text" id="mascota-propietario" placeholder="Tu nombre"></div>
-                        <div><label>Cédula (CC)</label><input type="number" id="mascota-cedula" placeholder="Número de documento"></div>
+                        <div><label>Cédula / NIT</label><input type="number" id="mascota-cedula" placeholder="Número de documento"></div>
                         <div><label>Fecha de Nacimiento (Propietario)</label><input type="date" id="mascota-nac-propietario"></div>
                         <div><label>Nombre de Mascota</label><input type="text" id="mascota-nombre" placeholder="Ej: Firulais"></div>
                         <div><label>Raza</label><input type="text" id="mascota-raza" placeholder="Ej: Golden Retriever"></div>
@@ -384,6 +383,7 @@
                 <form>
                     <div class="form-grid">
                         <div><label>Nombre del Propietario</label><input type="text" id="hogar-nombre"></div>
+                        <div><label>Cédula / NIT</label><input type="number" id="hogar-cedula" placeholder="Documento propietario"></div>
                         <div><label>Ciudad del Inmueble</label><input type="text" id="hogar-ciudad"></div>
                         <div><label>Tipo de Inmueble</label>
                             <select id="hogar-tipo">
@@ -392,7 +392,7 @@
                                 <option>Finca de Recreo</option>
                             </select>
                         </div>
-                        <div><label>Valor Estimado Contenidos</label><input type="number" id="hogar-contenidos" placeholder="Muebles, electrodomésticos, etc."></div>
+                        <div class="full-width"><label>Valor Estimado Contenidos</label><input type="number" id="hogar-contenidos" placeholder="Muebles, electrodomésticos, etc."></div>
                     </div>
                     <button type="button" class="cta-btn" onclick="enviarWhatsapp('hogar')">
                         <i class="fab fa-whatsapp" style="font-size: 1.5rem;"></i> Solicitar Cotización Hogar
@@ -465,31 +465,36 @@
             
             if(tipo === 'auto') {
                 let n = document.getElementById('auto-nombre').value;
+                let cc = document.getElementById('auto-cedula').value; // Ya existía
                 let p = document.getElementById('auto-placa').value;
                 let r = document.getElementById('auto-referencia').value;
-                msg = `Hola SM SEGUROS, deseo cotizar AUTO para: ${n}. Placa: ${p}. Referencia: ${r}`;
+                msg = `Hola SM SEGUROS, deseo cotizar AUTO para: ${n}. CC/NIT: ${cc}. Placa: ${p}. Referencia: ${r}`;
             } else if (tipo === 'salud') {
                 let n = document.getElementById('salud-nombre').value;
+                let cc = document.getElementById('salud-cedula').value; // Nuevo
                 let t = document.getElementById('salud-tipo').value;
-                msg = `Hola SM SEGUROS, deseo cotizar SALUD (${t}) para: ${n}`;
+                msg = `Hola SM SEGUROS, deseo cotizar SALUD (${t}) para: ${n}. CC/NIT: ${cc}`;
             } else if (tipo === 'vida') {
                 let n = document.getElementById('vida-nombre').value;
+                let cc = document.getElementById('vida-cedula').value; // Nuevo
                 let v = document.getElementById('vida-valor').value;
-                msg = `Hola SM SEGUROS, deseo cotizar VIDA para: ${n}. Valor aprox: ${v}`;
+                msg = `Hola SM SEGUROS, deseo cotizar VIDA para: ${n}. CC/NIT: ${cc}. Valor aprox: ${v}`;
             } else if (tipo === 'mascotas') {
                 let prop = document.getElementById('mascota-propietario').value;
-                let cc = document.getElementById('mascota-cedula').value;
+                let cc = document.getElementById('mascota-cedula').value; // Ya existía
                 let fnac = document.getElementById('mascota-nac-propietario').value;
                 let petName = document.getElementById('mascota-nombre').value;
                 let raza = document.getElementById('mascota-raza').value;
                 let edad = document.getElementById('mascota-edad').value;
                 
-                msg = `Hola SM SEGUROS, deseo cotizar SEGURO PARA MASCOTAS.\n\n*Datos Propietario:*\nNombre: ${prop}\nCC: ${cc}\nF. Nac: ${fnac}\n\n*Datos Mascota:*\nNombre: ${petName}\nRaza: ${raza}\nEdad: ${edad} años`;
+                msg = `Hola SM SEGUROS, deseo cotizar SEGURO PARA MASCOTAS.\n\n*Datos Propietario:*\nNombre: ${prop}\nCC/NIT: ${cc}\nF. Nac: ${fnac}\n\n*Datos Mascota:*\nNombre: ${petName}\nRaza: ${raza}\nEdad: ${edad} años`;
             } else if (tipo === 'hogar') {
                 let n = document.getElementById('hogar-nombre').value;
+                let cc = document.getElementById('hogar-cedula').value; // Nuevo
                 let c = document.getElementById('hogar-ciudad').value;
-                msg = `Hola SM SEGUROS, deseo cotizar HOGAR en ${c}. Propietario: ${n}`;
+                msg = `Hola SM SEGUROS, deseo cotizar HOGAR en ${c}. Propietario: ${n}. CC/NIT: ${cc}`;
             } else if (tipo === 'viaje') {
+                // Viaje queda igual (sin cédula)
                 let d = document.getElementById('viaje-destino').value;
                 let fi = document.getElementById('viaje-ida').value;
                 let fv = document.getElementById('viaje-vuelta').value;
