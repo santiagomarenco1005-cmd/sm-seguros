@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SM SEGUROS | Expertos en Seguros en Colombia</title>
+    <title>SM SEGUROS</title>
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="SM SEGUROS - Agencia de seguros con más de 12 años de experiencia. Cotiza seguros de auto, salud, vida, hogar, mascotas y viaje. Asesoría personalizada en Barranquilla y toda Colombia.">
@@ -14,14 +14,14 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://smseguros.co/">
-    <meta property="og:title" content="SM SEGUROS | Expertos en Seguros en Colombia">
+    <meta property="og:title" content="SM SEGUROS">
     <meta property="og:description" content="Cotiza tu seguro de auto, salud, vida, hogar y más. Más de 12 años protegiendo familias con pasión y transparencia.">
     <meta property="og:image" content="nuevo-logo-sm.jpg">
     <meta property="og:locale" content="es_CO">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SM SEGUROS | Expertos en Seguros">
+    <meta name="twitter:title" content="SM SEGUROS">
     <meta name="twitter:description" content="Cotiza tu seguro de auto, salud, vida, hogar y más. Asesoría personalizada con pasión y transparencia.">
     <meta name="twitter:image" content="nuevo-logo-sm.jpg">
 
@@ -140,11 +140,11 @@
         .insurer-logos-container {
             margin-top: 1rem;
             display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; padding: 20px;
-            isolation: isolate;
+            /* isolation: isolate;  -- removed to allow logos to blend with page background */
         }
         .insurer-logo { 
             height: 60px; width: auto; object-fit: contain; transition: transform 0.3s ease; cursor: pointer; 
-            mix-blend-mode: multiply; 
+            /* mix-blend-mode: multiply;  -- removed: use transparent images or SVGs instead */
             background: transparent;
             display: inline-block;
             will-change: transform; 
