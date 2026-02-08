@@ -140,11 +140,17 @@
         .insurer-logos-container {
             margin-top: 1rem;
             display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; padding: 20px;
+            isolation: isolate;
         }
         .insurer-logo { 
             height: 60px; width: auto; object-fit: contain; transition: transform 0.3s ease; cursor: pointer; 
             mix-blend-mode: multiply; 
+            background: transparent;
+            display: inline-block;
             will-change: transform; 
+        }
+        .insurer-logo.large {
+            height: 96px;
         }
         .insurer-logo:hover { transform: scale(1.05); }
 
@@ -412,6 +418,7 @@
             .about-grid { grid-template-columns: 1fr; gap: 30px; }
             .about-text { text-align: center; }
             .values-grid { justify-content: center; }
+            .insurer-logo.large { height: 72px; }
         }
     </style>
 </head>
@@ -455,11 +462,11 @@
         <h1 class="hero-title animate-on-scroll">Tu Tranquilidad <br>es <span>Nuestra Prioridad</span></h1>
         <p class="hero-text animate-on-scroll delay-1">Expertos en seguros. Asesoría personalizada con pasión y transparencia.</p>
         
-        <div class="insurer-logos-container animate-on-scroll delay-2">
-            <img src="logo-sura.webp" alt="Sura" class="insurer-logo" title="Seguros SURA">
-            <img src="AZ_Logo_Twitter_438x220px.webp" alt="Allianz" class="insurer-logo" title="Allianz Seguros">
-            <img src="images (1).png" alt="AXA Colpatria" class="insurer-logo" title="AXA Colpatria">
-            <img src="images.png" alt="Seguros Bolívar" class="insurer-logo" title="Seguros Bolívar">
+            <div class="insurer-logos-container animate-on-scroll delay-2">
+            <img src="logo-sura.webp" alt="Sura" class="insurer-logo large" title="Seguros SURA">
+            <img src="AZ_Logo_Twitter_438x220px.webp" alt="Allianz" class="insurer-logo logo-no-bg large" title="Allianz Seguros">
+            <img src="images (1).png" alt="AXA Colpatria" class="insurer-logo logo-no-bg large" title="AXA Colpatria">
+            <img src="images.png" alt="Seguros Bolívar" class="insurer-logo logo-no-bg large" title="Seguros Bolívar">
         </div>
     </section>
 
